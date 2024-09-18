@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.IO Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <div id="messages"></div>
+    <input id="user" type="text" placeholder="Username">
+    <input id="message" type="text" placeholder="Type a message">
+    <button id="send">Send</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const messageInput = document.getElementById('message');
+    const userInput = document.getElementById('user');
+    const messagesDiv = document.getElementById('messages');
+    const sendButton = document.getElementById('send');
+
+    // Send message to server
+    sendButton.addEventListener('click', () => {
+      const message = {
+        user: userInput.value,
+        content: messageInput.value
+      };
+      socket.emit('sendMessage', message);
+      messageInput.value = '';
+    });
+
+    // Display new message
+    socket.on('message', (message) => {
+      const messageElement = document.createElement('div');
+      messageElement.innerHTML = `<strong>${message.user}</strong>: ${message.content}`;
+      messagesDiv.appendChild(messageElement);
+    });
+
+    // Load initial messages
+    socket.on('initialMessages', (messages) => {
+      messages.forEach((message) => {
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${message.user}</strong>: ${message.content}`;
+        messagesDiv.appendChild(messageElement);
+      });
+    });
+  </script>
+</body>
+</html>
